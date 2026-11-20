@@ -9,7 +9,8 @@
     "start": "next start",
     "seed": "tsx scripts/seed.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "tsx scripts/verify-e2e.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
