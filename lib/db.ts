@@ -95,10 +95,10 @@ export function getCurrentUser(): { id: string; name: string; age: number; photo
   // Fallback if not seeded yet
   return {
     id: 'me',
-    name: 'You',
+    name: 'Arjun Mehta',
     age: 23,
-    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-    city: 'New York, NY',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    city: 'Indiranagar, Bangalore',
   };
 }
 

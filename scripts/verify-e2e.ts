@@ -1,5 +1,5 @@
 async function runE2EVerification() {
-  const baseUrl = 'http://localhost:3001';
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
   console.log(`🔍 Starting E2E verification against ${baseUrl}...\n`);
 
   // 1. Reset demo data to start clean
@@ -60,7 +60,7 @@ async function runE2EVerification() {
   const matchData = await matchRes.json();
   console.log('   ✓ Match result:', matchData);
   if (matchData.match !== true || !matchData.profile || matchData.profile.id !== 'coy_1') {
-    throw new Error('Expected match: true and profile details for Maya Lin');
+    throw new Error('Expected match: true and profile details for Ananya Sen');
   }
 
   // 6. Test GET /api/matches
@@ -69,7 +69,7 @@ async function runE2EVerification() {
   const matchesData = await matchesRes.json();
   console.log(`   ✓ Matches count: ${matchesData.matches.length}`);
   if (matchesData.matches.length !== 1 || matchesData.matches[0].id !== 'coy_1') {
-    throw new Error('Expected exactly 1 match (Maya Lin)');
+    throw new Error('Expected exactly 1 match (Ananya Sen)');
   }
 
   // 7. Test Idempotency: swipe same profile again
