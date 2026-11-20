@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #FAF8F5;
+  --bg-card: #FFFFFF;
+  --bg-secondary: #F3EFEA;
+  --bg-hover: #ECE7DF;
+  --text-primary: #1A1816;
+  --text-secondary: #6B6661;
+  --text-muted: #9E9890;
+  --accent: #A83B3B;
+  --accent-hover: #933232;
+  --accent-subtle: #F9EFEB;
+  --accent-light: rgba(168, 59, 59, 0.08);
+  --pass: #57534E;
+  --pass-hover: #44403C;
+  --pass-subtle: #F5F5F4;
+  --border-subtle: #E8E4DD;
+  --border-muted: #DCD7CE;
+}
+
+.dark {
+  --bg-primary: #141312;
+  --bg-card: #1C1B19;
+  --bg-secondary: #242220;
+  --bg-hover: #2E2B28;
+  --text-primary: #F4F1EB;
+  --text-secondary: #A39E97;
+  --text-muted: #6B6761;
+  --accent: #C74E4E;
+  --accent-hover: #D65A5A;
+  --accent-subtle: #2B1C1C;
+  --accent-light: rgba(199, 78, 78, 0.15);
+  --pass: #A8A29E;
+  --pass-hover: #D6D3D1;
+  --pass-subtle: #292524;
+  --border-subtle: #2A2724;
+  --border-muted: #383531;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+/* Safe areas for iOS */
+.safe-pb {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-pt {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+/* Focus styles for keyboard accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
