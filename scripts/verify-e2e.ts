@@ -122,8 +122,21 @@ async function runE2EVerification() {
     throw new Error('Expected all profiles to be in Bangalore');
   }
 
-  // 11. Test Error Codes
-  console.log('\n11. Testing validation and status codes...');
+  // 11. Test 1-Click Message & Reply in Matched Section
+  console.log('\n11. Testing 1-click message & match reply for coy_1...');
+  const sendMsgRes = await fetch(`${baseUrl}/api/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetId: 'coy_1', text: 'Hey Ananya! Loved your bio :)' }),
+  });
+  if (!sendMsgRes.ok) throw new Error('Failed to send message');
+  const msgData = await sendMsgRes.json();
+  console.log(`   ✓ Message sent! Total thread messages: ${msgData.messages.length}`);
+  console.log(`   ✓ Match reply received: "${msgData.reply.text}"`);
+  if (msgData.messages.length !== 2) throw new Error('Expected 2 messages in thread (user + reply)');
+
+  // 12. Test Error Codes
+  console.log('\n12. Testing validation and status codes...');
   const badBodyRes = await fetch(`${baseUrl}/api/swipe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -140,8 +153,8 @@ async function runE2EVerification() {
   console.log(`   ✓ Unknown profile status code: ${notFoundRes.status} (expected 404)`);
   if (notFoundRes.status !== 404) throw new Error('Expected status 404');
 
-  // 12. Final reset and restore default user
-  console.log('\n12. Final demo reset and restore...');
+  // 13. Final reset and restore default user
+  console.log('\n13. Final demo reset and restore...');
   await fetch(`${baseUrl}/api/me`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

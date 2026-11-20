@@ -16,6 +16,8 @@ import {
   getCurrentUser,
   updateUserPreferences,
   getInternalProfile,
+  getMessages,
+  saveMessage,
 } from '../lib/db';
 
 describe('Database Layer & Privacy Guarantees', () => {
@@ -25,6 +27,7 @@ describe('Database Layer & Privacy Guarantees', () => {
     db.prepare('DELETE FROM swipes').run();
     db.prepare('DELETE FROM profiles').run();
     db.prepare('DELETE FROM user_account').run();
+    db.prepare('DELETE FROM messages').run();
 
     // Insert user: Arjun (Male, looking for everyone initially in test)
     db.prepare(`
@@ -179,15 +182,30 @@ describe('Database Layer & Privacy Guarantees', () => {
     expect(res.status).toBe('not_found');
   });
 
-  it('resetDemoData clears swipes and matches so all profiles reappear in feed', () => {
+  it('saves and retrieves messages for mutual matches', () => {
+    saveMessage('target_1', 'me', 'Hey Ananya! Loved your bio :)');
+    saveMessage('target_1', 'target_1', 'Hey Arjun! Would love to get chai!');
+
+    const msgs = getMessages('target_1');
+    expect(msgs.length).toBe(2);
+    expect(msgs[0].senderId).toBe('me');
+    expect(msgs[0].text).toBe('Hey Ananya! Loved your bio :)');
+    expect(msgs[1].senderId).toBe('target_1');
+    expect(msgs[1].text).toBe('Hey Arjun! Would love to get chai!');
+  });
+
+  it('resetDemoData clears swipes, matches, and messages', () => {
     recordSwipe('me', 'target_1', 'like');
     recordSwipe('me', 'target_2', 'pass');
+    saveMessage('target_1', 'me', 'Hey!');
     expect(getFeed('me').length).toBe(1);
     expect(getMatches('me').length).toBe(1);
+    expect(getMessages('target_1').length).toBe(1);
 
     resetDemoData('me');
 
     expect(getFeed('me').length).toBe(3);
     expect(getMatches('me').length).toBe(0);
+    expect(getMessages('target_1').length).toBe(0);
   });
 });

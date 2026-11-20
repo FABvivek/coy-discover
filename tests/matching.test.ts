@@ -15,12 +15,11 @@ const mockProfiles: InternalProfile[] = [
     age: 22,
     gender: 'female',
     height: '5\'5"',
-    styleColor: 'Warm Terracotta',
     photo: 'https://example.com/maya.jpg',
     bio: 'architecture & bakeries',
     city: 'Brooklyn, NY',
     interests: ['Architecture', 'Ceramics', 'Matcha'],
-    likedUser: true, // liked the user
+    likedUser: true,
     createdAt: '2026-01-01T00:00:00Z',
   },
   {
@@ -29,12 +28,11 @@ const mockProfiles: InternalProfile[] = [
     age: 24,
     gender: 'male',
     height: '5\'10"',
-    styleColor: 'Indigo & Linen',
     photo: 'https://example.com/leo.jpg',
     bio: 'film photography & jazz',
     city: 'Lower East Side, NY',
     interests: ['35mm Film', 'Jazz', 'Bouldering'],
-    likedUser: false, // did NOT like the user
+    likedUser: false,
     createdAt: '2026-01-01T00:00:00Z',
   },
   {
@@ -43,12 +41,11 @@ const mockProfiles: InternalProfile[] = [
     age: 21,
     gender: 'female',
     height: '5\'4"',
-    styleColor: 'Forest & Olive',
     photo: 'https://example.com/sora.jpg',
     bio: 'printmaking & darkroom',
     city: 'Providence, RI',
     interests: ['Printmaking', 'Graphic Design', 'Tea'],
-    likedUser: true, // liked the user
+    likedUser: true,
     createdAt: '2026-01-01T00:00:00Z',
   },
 ];
@@ -57,7 +54,7 @@ describe('Matching Logic & Privacy Guarantees', () => {
   it('creates a match when user likes someone who already liked them (like + liked-me)', () => {
     const result = evaluateSwipe({
       direction: 'like',
-      targetProfile: mockProfiles[0], // likedUser: true
+      targetProfile: mockProfiles[0],
     });
 
     expect(result.match).toBe(true);
@@ -69,7 +66,7 @@ describe('Matching Logic & Privacy Guarantees', () => {
   it('does NOT create a match when user likes someone who did NOT like them (like + not-liked-me)', () => {
     const result = evaluateSwipe({
       direction: 'like',
-      targetProfile: mockProfiles[1], // likedUser: false
+      targetProfile: mockProfiles[1],
     });
 
     expect(result.match).toBe(false);
@@ -77,18 +74,16 @@ describe('Matching Logic & Privacy Guarantees', () => {
   });
 
   it('NEVER creates a match when user passes, even if the target liked the user', () => {
-    // Target liked user, but user passed
     const resultLiked = evaluateSwipe({
       direction: 'pass',
-      targetProfile: mockProfiles[0], // likedUser: true
+      targetProfile: mockProfiles[0],
     });
     expect(resultLiked.match).toBe(false);
     expect(resultLiked.matchedProfile).toBeUndefined();
 
-    // Target didn't like user, and user passed
     const resultNotLiked = evaluateSwipe({
       direction: 'pass',
-      targetProfile: mockProfiles[1], // likedUser: false
+      targetProfile: mockProfiles[1],
     });
     expect(resultNotLiked.match).toBe(false);
     expect(resultNotLiked.matchedProfile).toBeUndefined();
@@ -104,7 +99,6 @@ describe('Matching Logic & Privacy Guarantees', () => {
   it('repeat swipe is idempotent and does not create duplicate records or match events', () => {
     const initialSwipes: SwipeRecord[] = [];
 
-    // First swipe: like user_1
     const firstResult = recordSwipePure(initialSwipes, {
       userId: 'me',
       targetId: 'user_1',
@@ -114,7 +108,6 @@ describe('Matching Logic & Privacy Guarantees', () => {
     expect(firstResult.isNew).toBe(true);
     expect(firstResult.updatedSwipes).toHaveLength(1);
 
-    // Second swipe: repeat like user_1
     const secondResult = recordSwipePure(firstResult.updatedSwipes, {
       userId: 'me',
       targetId: 'user_1',
@@ -125,7 +118,6 @@ describe('Matching Logic & Privacy Guarantees', () => {
     expect(secondResult.updatedSwipes).toHaveLength(1);
     expect(secondResult.existingRecord?.direction).toBe('like');
 
-    // Evaluating swipe with alreadySwiped=true returns match: false
     const evalRepeat = evaluateSwipe({
       direction: 'like',
       targetProfile: mockProfiles[0],
@@ -153,7 +145,6 @@ describe('Matching Logic & Privacy Guarantees', () => {
       expect((profile as any).likedUser).toBeUndefined();
       expect((profile as any).likedMe).toBeUndefined();
       expect((profile as any).createdAt).toBeUndefined();
-      // Ensure all public fields are intact
       expect(profile.id).toBeDefined();
       expect(profile.name).toBeDefined();
       expect(profile.age).toBeGreaterThan(0);
@@ -182,7 +173,6 @@ describe('Matching Logic & Privacy Guarantees', () => {
       'interests',
       'name',
       'photo',
-      'styleColor',
     ]);
   });
 });

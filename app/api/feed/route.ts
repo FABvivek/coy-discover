@@ -11,11 +11,9 @@ export async function GET(request: NextRequest) {
     const filters: FeedFilterOptions = {};
     const gender = searchParams.get('gender');
     const city = searchParams.get('city');
-    const styleColor = searchParams.get('styleColor');
 
     if (gender) filters.gender = gender as any;
     if (city) filters.city = city;
-    if (styleColor) filters.styleColor = styleColor;
 
     const profiles = getFeed('me', filters);
 

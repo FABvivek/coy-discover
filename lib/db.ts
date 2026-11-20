@@ -10,6 +10,7 @@ import {
   CurrentUser,
   Gender,
   LookingFor,
+  ChatMessage,
 } from './types';
 import { sanitizeProfile, isMatch } from './matching';
 
@@ -68,6 +69,14 @@ function initSchema(db: Database.Database): void {
       target_id TEXT NOT NULL,
       matched_at TEXT NOT NULL,
       UNIQUE(user_id, target_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      target_id TEXT NOT NULL,
+      sender_id TEXT NOT NULL,
+      text TEXT NOT NULL,
+      created_at TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS user_account (
@@ -213,13 +222,8 @@ export function getFeed(userId: string = 'me', filters?: FeedFilterOptions): Pro
     params.push(`%${filters.city}%`);
   }
 
-  if (filters?.styleColor && filters.styleColor !== 'all') {
-    queryConditions.push('style_color = ?');
-    params.push(filters.styleColor);
-  }
-
   const sql = `
-    SELECT id, name, age, gender, height, style_color, photo, bio, city, interests
+    SELECT id, name, age, gender, height, photo, bio, city, interests
     FROM profiles
     WHERE ${queryConditions.join(' AND ')}
     ORDER BY RANDOM()
@@ -231,7 +235,6 @@ export function getFeed(userId: string = 'me', filters?: FeedFilterOptions): Pro
     age: number;
     gender: string;
     height: string;
-    style_color: string;
     photo: string;
     bio: string;
     city: string;
@@ -244,7 +247,6 @@ export function getFeed(userId: string = 'me', filters?: FeedFilterOptions): Pro
     age: row.age,
     gender: row.gender as Gender,
     height: row.height,
-    styleColor: row.style_color,
     photo: row.photo,
     bio: row.bio,
     city: row.city,
@@ -270,7 +272,6 @@ export function getInternalProfile(targetId: string): InternalProfile | null {
     age: row.age,
     gender: row.gender || 'female',
     height: row.height || '5\'6"',
-    styleColor: row.style_color || 'Warm Earth',
     photo: row.photo,
     bio: row.bio,
     city: row.city,
@@ -357,7 +358,7 @@ export function getMatches(userId: string = 'me'): (Profile & { matchedAt: strin
   const db = getDb();
 
   const stmt = db.prepare(`
-    SELECT p.id, p.name, p.age, p.gender, p.height, p.style_color as styleColor, p.photo, p.bio, p.city, p.interests, m.matched_at as matchedAt
+    SELECT p.id, p.name, p.age, p.gender, p.height, p.photo, p.bio, p.city, p.interests, m.matched_at as matchedAt
     FROM matches m
     JOIN profiles p ON m.target_id = p.id
     WHERE m.user_id = ?
@@ -372,7 +373,6 @@ export function getMatches(userId: string = 'me'): (Profile & { matchedAt: strin
     age: row.age,
     gender: row.gender,
     height: row.height,
-    styleColor: row.styleColor,
     photo: row.photo,
     bio: row.bio,
     city: row.city,
@@ -382,12 +382,48 @@ export function getMatches(userId: string = 'me'): (Profile & { matchedAt: strin
 }
 
 /**
- * POST /api/reset: clears swipes and matches for the logged-in user.
+ * GET messages for a match
+ */
+export function getMessages(targetId: string): ChatMessage[] {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT id, target_id as targetId, sender_id as senderId, text, created_at as createdAt
+    FROM messages
+    WHERE target_id = ?
+    ORDER BY id ASC
+  `).all(targetId) as any[];
+
+  return rows;
+}
+
+/**
+ * Save a new message
+ */
+export function saveMessage(targetId: string, senderId: string, text: string): ChatMessage {
+  const db = getDb();
+  const now = new Date().toISOString();
+  const info = db.prepare(`
+    INSERT INTO messages (target_id, sender_id, text, created_at)
+    VALUES (?, ?, ?, ?)
+  `).run(targetId, senderId, text, now);
+
+  return {
+    id: Number(info.lastInsertRowid),
+    targetId,
+    senderId,
+    text,
+    createdAt: now,
+  };
+}
+
+/**
+ * POST /api/reset: clears swipes, matches, and messages for the logged-in user.
  */
 export function resetDemoData(userId: string = 'me'): void {
   const db = getDb();
   db.transaction(() => {
     db.prepare('DELETE FROM swipes WHERE user_id = ?').run(userId);
     db.prepare('DELETE FROM matches WHERE user_id = ?').run(userId);
+    db.prepare('DELETE FROM messages').run();
   })();
 }

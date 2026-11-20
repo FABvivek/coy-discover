@@ -7,7 +7,6 @@ export interface Profile {
   age: number;
   gender: Gender;
   height: string;
-  styleColor: string;
   photo: string;
   bio: string;
   city: string;
@@ -35,6 +34,8 @@ export interface MatchRecord {
   targetId: string;
   matchedAt: string;
   profile?: Profile;
+  lastMessage?: string;
+  hasReply?: boolean;
 }
 
 export interface SwipeResponse {
@@ -46,7 +47,6 @@ export interface FeedFilterOptions {
   gender?: Gender | 'all';
   city?: string;
   minHeight?: string;
-  styleColor?: string;
 }
 
 export interface CurrentUser {
@@ -58,4 +58,12 @@ export interface CurrentUser {
   photo: string;
   city: string;
   bio: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  targetId: string;
+  senderId: string; // 'me' or target profile id
+  text: string;
+  createdAt: string;
 }

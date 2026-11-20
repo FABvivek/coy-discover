@@ -137,14 +137,6 @@ export function SwipeCard({
         <span>PASS</span>
       </motion.div>
 
-      {/* Aesthetic Palette badge (top right subtle) */}
-      {profile.styleColor && (
-        <div className="absolute top-6 right-6 z-10 pointer-events-none">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-black/40 text-white/80 backdrop-blur-md border border-white/10">
-            {profile.styleColor}
-          </span>
-        </div>
-      )}
 
       {/* Profile Details Container (bottom) */}
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10 pointer-events-none">

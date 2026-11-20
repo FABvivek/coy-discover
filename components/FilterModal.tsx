@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, SlidersHorizontal, Check } from 'lucide-react';
+import { X, SlidersHorizontal } from 'lucide-react';
 import { Gender, LookingFor, FeedFilterOptions } from '@/lib/types';
 
 interface FilterModalProps {
@@ -26,14 +26,6 @@ const CITIES = [
   'Ahmedabad',
 ];
 
-const PALETTES = [
-  'All Palettes',
-  'Warm Terracotta',
-  'Indigo & Linen',
-  'Forest & Olive',
-  'Ochre & Brass',
-];
-
 export function FilterModal({
   isOpen,
   onClose,
@@ -46,7 +38,6 @@ export function FilterModal({
   if (!isOpen) return null;
 
   const handleGenderSelect = (gender: Gender) => {
-    // Automatic default: if male, look for female; if female, look for male
     const autoLookingFor: LookingFor = gender === 'male' ? 'female' : 'male';
     onUpdateUserGender(gender, autoLookingFor);
     onUpdateFilters({ ...filters, gender: autoLookingFor });
@@ -61,13 +52,6 @@ export function FilterModal({
     onUpdateFilters({
       ...filters,
       city: city === 'All Cities' ? undefined : city,
-    });
-  };
-
-  const handlePaletteSelect = (palette: string) => {
-    onUpdateFilters({
-      ...filters,
-      styleColor: palette === 'All Palettes' ? undefined : palette,
     });
   };
 
@@ -197,33 +181,6 @@ export function FilterModal({
                   }`}
                 >
                   {c}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Section 3: Style & Color Palette Filter */}
-        <div className="py-5 border-b border-line">
-          <label className="block text-xs font-medium uppercase tracking-wider text-ink-muted mb-2.5">
-            Aesthetic & Color Palette
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {PALETTES.map((p) => {
-              const isSelected =
-                (!filters.styleColor && p === 'All Palettes') || filters.styleColor === p;
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => handlePaletteSelect(p)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                    isSelected
-                      ? 'bg-ink-primary text-bg-primary border-ink-primary'
-                      : 'bg-bg-secondary text-ink-secondary border-line hover:text-ink-primary'
-                  }`}
-                >
-                  {p}
                 </button>
               );
             })}

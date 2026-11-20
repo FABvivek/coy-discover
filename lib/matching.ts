@@ -5,14 +5,13 @@ import { Profile, InternalProfile, SwipeDirection, SwipeRecord } from './types';
  * Guarantees that client-facing profiles NEVER leak `likedUser`.
  */
 export function sanitizeProfile(profile: InternalProfile): Profile {
-  const { id, name, age, gender, height, styleColor, photo, bio, city, interests } = profile;
+  const { id, name, age, gender, height, photo, bio, city, interests } = profile;
   return {
     id,
     name,
     age,
     gender,
     height,
-    styleColor,
     photo,
     bio,
     city,
@@ -115,7 +114,6 @@ export function evaluateSwipe({
   match: boolean;
   matchedProfile?: Profile;
 } {
-  // If already swiped previously, swipe is idempotent and should not trigger a new match
   if (alreadySwiped) {
     return { match: false };
   }

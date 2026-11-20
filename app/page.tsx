@@ -83,7 +83,6 @@ export default function CoyDiscoverApp() {
       const params = new URLSearchParams();
       if (activeFilters.gender) params.set('gender', activeFilters.gender);
       if (activeFilters.city) params.set('city', activeFilters.city);
-      if (activeFilters.styleColor) params.set('styleColor', activeFilters.styleColor);
 
       const url = `/api/feed${params.toString() ? `?${params.toString()}` : ''}`;
       const res = await fetch(url);
@@ -204,8 +203,7 @@ export default function CoyDiscoverApp() {
 
   const activeFiltersCount =
     (filters.gender && filters.gender !== 'all' ? 1 : 0) +
-    (filters.city ? 1 : 0) +
-    (filters.styleColor ? 1 : 0);
+    (filters.city ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-bg-primary text-ink-primary flex flex-col font-sans transition-colors duration-200">
