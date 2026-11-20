@@ -7,7 +7,16 @@ import { CardStack } from '@/components/CardStack';
 import { MatchesList } from '@/components/MatchesList';
 import { MatchModal } from '@/components/MatchModal';
 import { HomeView } from '@/components/HomeView';
-import { Profile, SwipeDirection, SwipeResponse } from '@/lib/types';
+import { FilterModal } from '@/components/FilterModal';
+import {
+  Profile,
+  SwipeDirection,
+  SwipeResponse,
+  FeedFilterOptions,
+  CurrentUser,
+  Gender,
+  LookingFor,
+} from '@/lib/types';
 
 export default function CoyDiscoverApp() {
   const [activeTab, setActiveTab] = useState<'home' | 'discover'>('discover');
@@ -15,15 +24,20 @@ export default function CoyDiscoverApp() {
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [matches, setMatches] = useState<(Profile & { matchedAt: string })[]>([]);
-  const [currentUser, setCurrentUser] = useState<{
-    id: string;
-    name: string;
-    photo: string;
-  }>({
+  const [currentUser, setCurrentUser] = useState<CurrentUser>({
     id: 'me',
-    name: 'Arjun',
+    name: 'Arjun Mehta',
+    age: 23,
+    gender: 'male',
+    lookingFor: 'female',
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    city: 'Indiranagar, Bangalore',
+    bio: 'industrial design student & 35mm film photographer.',
   });
+
+  // Filter state
+  const [filters, setFilters] = useState<FeedFilterOptions>({});
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [isLoadingFeed, setIsLoadingFeed] = useState(true);
   const [isLoadingMatches, setIsLoadingMatches] = useState(false);
@@ -43,7 +57,6 @@ export default function CoyDiscoverApp() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Check system preference or localStorage
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (prefersDark) {
       setIsDark(true);
@@ -63,11 +76,17 @@ export default function CoyDiscoverApp() {
     });
   };
 
-  const fetchFeed = useCallback(async () => {
+  const fetchFeed = useCallback(async (activeFilters: FeedFilterOptions = filters) => {
     setIsLoadingFeed(true);
     setFeedError(null);
     try {
-      const res = await fetch('/api/feed');
+      const params = new URLSearchParams();
+      if (activeFilters.gender) params.set('gender', activeFilters.gender);
+      if (activeFilters.city) params.set('city', activeFilters.city);
+      if (activeFilters.styleColor) params.set('styleColor', activeFilters.styleColor);
+
+      const url = `/api/feed${params.toString() ? `?${params.toString()}` : ''}`;
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`Failed to load feed (${res.status})`);
       }
@@ -78,7 +97,7 @@ export default function CoyDiscoverApp() {
     } finally {
       setIsLoadingFeed(false);
     }
-  }, []);
+  }, [filters]);
 
   const fetchMatches = useCallback(async () => {
     setIsLoadingMatches(true);
@@ -109,6 +128,30 @@ export default function CoyDiscoverApp() {
     }
   }, []);
 
+  // Update gender & orientation preferences
+  const handleUpdateUserPreferences = async (gender: Gender, lookingFor: LookingFor) => {
+    try {
+      const res = await fetch('/api/me', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gender, lookingFor }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setCurrentUser(data.user);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to update preferences', err);
+    }
+  };
+
+  const handleApplyFilters = (newFilters: FeedFilterOptions) => {
+    setFilters(newFilters);
+    fetchFeed(newFilters);
+  };
+
   // Initial data load
   useEffect(() => {
     fetchFeed();
@@ -132,7 +175,6 @@ export default function CoyDiscoverApp() {
 
       const result: SwipeResponse = await res.json();
 
-      // If mutual match occurred, show MatchModal and refresh matches list
       if (result.match && result.profile) {
         setMatchModalState({
           isOpen: true,
@@ -160,9 +202,14 @@ export default function CoyDiscoverApp() {
     }
   };
 
+  const activeFiltersCount =
+    (filters.gender && filters.gender !== 'all' ? 1 : 0) +
+    (filters.city ? 1 : 0) +
+    (filters.styleColor ? 1 : 0);
+
   return (
     <div className="min-h-screen bg-bg-primary text-ink-primary flex flex-col font-sans transition-colors duration-200">
-      {/* Tab 1: Home View (Intentionally blank & calm) */}
+      {/* Tab 1: Home View */}
       {activeTab === 'home' && (
         <main className="flex-1 flex flex-col">
           <HomeView onGoToDiscover={() => setActiveTab('discover')} />
@@ -180,6 +227,8 @@ export default function CoyDiscoverApp() {
             isResetting={isResetting}
             isDark={isDark}
             onToggleTheme={toggleTheme}
+            onOpenFilters={() => setIsFilterOpen(true)}
+            activeFiltersCount={activeFiltersCount}
           />
 
           <div className="flex-1 flex flex-col">
@@ -189,7 +238,7 @@ export default function CoyDiscoverApp() {
                 onSwipe={handleSwipe}
                 isLoading={isLoadingFeed}
                 error={feedError}
-                onRetry={fetchFeed}
+                onRetry={() => fetchFeed()}
                 onResetDemo={handleResetDemo}
                 isResetting={isResetting}
               />
@@ -222,6 +271,17 @@ export default function CoyDiscoverApp() {
           setActiveTab('discover');
           setActiveDiscoverView('matches');
         }}
+      />
+
+      {/* Preferences & Demographic Filters Modal */}
+      <FilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        userGender={currentUser.gender}
+        userLookingFor={currentUser.lookingFor}
+        onUpdateUserGender={handleUpdateUserPreferences}
+        filters={filters}
+        onUpdateFilters={handleApplyFilters}
       />
     </div>
   );

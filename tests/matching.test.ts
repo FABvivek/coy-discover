@@ -13,6 +13,9 @@ const mockProfiles: InternalProfile[] = [
     id: 'user_1',
     name: 'Maya',
     age: 22,
+    gender: 'female',
+    height: '5\'5"',
+    styleColor: 'Warm Terracotta',
     photo: 'https://example.com/maya.jpg',
     bio: 'architecture & bakeries',
     city: 'Brooklyn, NY',
@@ -24,6 +27,9 @@ const mockProfiles: InternalProfile[] = [
     id: 'user_2',
     name: 'Leo',
     age: 24,
+    gender: 'male',
+    height: '5\'10"',
+    styleColor: 'Indigo & Linen',
     photo: 'https://example.com/leo.jpg',
     bio: 'film photography & jazz',
     city: 'Lower East Side, NY',
@@ -35,6 +41,9 @@ const mockProfiles: InternalProfile[] = [
     id: 'user_3',
     name: 'Sora',
     age: 21,
+    gender: 'female',
+    height: '5\'4"',
+    styleColor: 'Forest & Olive',
     photo: 'https://example.com/sora.jpg',
     bio: 'printmaking & darkroom',
     city: 'Providence, RI',
@@ -148,6 +157,8 @@ describe('Matching Logic & Privacy Guarantees', () => {
       expect(profile.id).toBeDefined();
       expect(profile.name).toBeDefined();
       expect(profile.age).toBeGreaterThan(0);
+      expect(profile.gender).toBeDefined();
+      expect(profile.height).toBeDefined();
       expect(profile.photo).toBeDefined();
       expect(profile.bio).toBeDefined();
       expect(profile.city).toBeDefined();
@@ -165,10 +176,13 @@ describe('Matching Logic & Privacy Guarantees', () => {
       'age',
       'bio',
       'city',
+      'gender',
+      'height',
       'id',
       'interests',
       'name',
       'photo',
+      'styleColor',
     ]);
   });
 });

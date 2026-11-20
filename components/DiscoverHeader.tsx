@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { RotateCcw, Moon, Sun } from 'lucide-react';
+import { RotateCcw, Moon, Sun, SlidersHorizontal } from 'lucide-react';
 
 interface DiscoverHeaderProps {
   activeView: 'swipe' | 'matches';
@@ -11,6 +11,8 @@ interface DiscoverHeaderProps {
   isResetting: boolean;
   isDark: boolean;
   onToggleTheme: () => void;
+  onOpenFilters: () => void;
+  activeFiltersCount?: number;
 }
 
 export function DiscoverHeader({
@@ -21,6 +23,8 @@ export function DiscoverHeader({
   isResetting,
   isDark,
   onToggleTheme,
+  onOpenFilters,
+  activeFiltersCount = 0,
 }: DiscoverHeaderProps) {
   return (
     <header className="sticky top-0 z-20 w-full bg-bg-primary/90 backdrop-blur-md border-b border-line px-4 pt-3 pb-3 transition-colors">
@@ -73,8 +77,21 @@ export function DiscoverHeader({
           </button>
         </div>
 
-        {/* Actions: Theme Toggle & Reset Demo Data */}
+        {/* Actions: Filters, Theme Toggle & Reset Demo Data */}
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onOpenFilters}
+            aria-label="Filter preferences"
+            title="Filter preferences (gender, location, height, aesthetic)"
+            className="relative p-2 rounded-full text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            {activeFiltersCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent" />
+            )}
+          </button>
+
           <button
             type="button"
             onClick={onToggleTheme}
@@ -93,7 +110,7 @@ export function DiscoverHeader({
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium text-ink-secondary hover:text-ink-primary hover:bg-bg-secondary transition-colors disabled:opacity-50 min-h-[36px]"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Reset demo</span>
+            <span className="hidden sm:inline">Reset</span>
           </button>
         </div>
       </div>

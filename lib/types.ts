@@ -1,7 +1,13 @@
+export type Gender = 'female' | 'male' | 'non_binary';
+export type LookingFor = 'female' | 'male' | 'everyone';
+
 export interface Profile {
   id: string;
   name: string;
   age: number;
+  gender: Gender;
+  height: string;
+  styleColor: string;
   photo: string;
   bio: string;
   city: string;
@@ -34,4 +40,22 @@ export interface MatchRecord {
 export interface SwipeResponse {
   match: boolean;
   profile?: Profile;
+}
+
+export interface FeedFilterOptions {
+  gender?: Gender | 'all';
+  city?: string;
+  minHeight?: string;
+  styleColor?: string;
+}
+
+export interface CurrentUser {
+  id: string;
+  name: string;
+  age: number;
+  gender: Gender;
+  lookingFor: LookingFor;
+  photo: string;
+  city: string;
+  bio: string;
 }

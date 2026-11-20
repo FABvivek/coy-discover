@@ -8,7 +8,7 @@ import {
   useReducedMotion,
   PanInfo,
 } from 'framer-motion';
-import { MapPin, Check, X } from 'lucide-react';
+import { MapPin, Check, X, Sparkles } from 'lucide-react';
 import { Profile, SwipeDirection } from '@/lib/types';
 
 interface SwipeCardProps {
@@ -27,17 +27,10 @@ export function SwipeCard({
   const shouldReduceMotion = useReducedMotion();
   const [imageError, setImageError] = useState(false);
 
-  // Motion values for smooth drag
   const x = useMotionValue(0);
-
-  // Gentle rotation on drag (disabled if prefers-reduced-motion)
   const rotate = useTransform(x, [-250, 250], shouldReduceMotion ? [0, 0] : [-12, 12]);
-
-  // Restrained opacity ramps for Like and Pass indicators
   const likeOpacity = useTransform(x, [25, 110], [0, 1]);
   const passOpacity = useTransform(x, [-25, -110], [0, 1]);
-
-  // Subtle card scale when dragging
   const cardScale = useTransform(x, [-250, 0, 250], [1.02, 1, 1.02]);
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -53,13 +46,11 @@ export function SwipeCard({
     }
   };
 
-  // Safe fallback photo URL
   const photoUrl = imageError
     ? `https://picsum.photos/seed/${profile.id}/600/850`
     : profile.photo;
 
   if (!isFront) {
-    // Background card visible slightly behind the top card
     return (
       <div
         aria-hidden="true"
@@ -84,9 +75,13 @@ export function SwipeCard({
             </span>
             <span className="text-xl font-normal text-white/80">{profile.age}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-white/70 mt-1">
-            <MapPin className="w-3.5 h-3.5 opacity-80" />
-            <span>{profile.city}</span>
+          <div className="flex items-center gap-2 text-xs text-white/70 mt-1">
+            <div className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 opacity-80" />
+              <span>{profile.city}</span>
+            </div>
+            <span>&bull;</span>
+            <span>{profile.height}</span>
           </div>
         </div>
       </div>
@@ -114,7 +109,6 @@ export function SwipeCard({
       }
       className="absolute inset-0 w-full h-full rounded-[28px] overflow-hidden bg-bg-card border border-line shadow-card-elevated cursor-grab active:cursor-grabbing select-none touch-none"
     >
-      {/* Full-bleed photo with fallback */}
       <img
         src={photoUrl}
         alt={`${profile.name}, ${profile.age}`}
@@ -123,7 +117,6 @@ export function SwipeCard({
         draggable={false}
       />
 
-      {/* Scrim overlay for editorial contrast */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 via-45% to-transparent pointer-events-none" />
 
       {/* Restrained "Like" stamp overlay (top-left) */}
@@ -144,6 +137,15 @@ export function SwipeCard({
         <span>PASS</span>
       </motion.div>
 
+      {/* Aesthetic Palette badge (top right subtle) */}
+      {profile.styleColor && (
+        <div className="absolute top-6 right-6 z-10 pointer-events-none">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-black/40 text-white/80 backdrop-blur-md border border-white/10">
+            {profile.styleColor}
+          </span>
+        </div>
+      )}
+
       {/* Profile Details Container (bottom) */}
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10 pointer-events-none">
         {/* Name and Age */}
@@ -156,10 +158,14 @@ export function SwipeCard({
           </span>
         </div>
 
-        {/* Location / College */}
-        <div className="flex items-center gap-1.5 text-xs text-white/80 mt-1 font-sans">
-          <MapPin className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
-          <span>{profile.city}</span>
+        {/* Location & Height */}
+        <div className="flex items-center gap-2 text-xs text-white/80 mt-1 font-sans">
+          <div className="flex items-center gap-1 text-white/90">
+            <MapPin className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
+            <span>{profile.city}</span>
+          </div>
+          <span className="opacity-50">&bull;</span>
+          <span className="text-white/80 font-normal">{profile.height}</span>
         </div>
 
         {/* Authentic short bio (max 120 chars) */}

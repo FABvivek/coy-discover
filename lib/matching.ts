@@ -5,11 +5,14 @@ import { Profile, InternalProfile, SwipeDirection, SwipeRecord } from './types';
  * Guarantees that client-facing profiles NEVER leak `likedUser`.
  */
 export function sanitizeProfile(profile: InternalProfile): Profile {
-  const { id, name, age, photo, bio, city, interests } = profile;
+  const { id, name, age, gender, height, styleColor, photo, bio, city, interests } = profile;
   return {
     id,
     name,
     age,
+    gender,
+    height,
+    styleColor,
     photo,
     bio,
     city,

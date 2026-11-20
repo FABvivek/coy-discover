@@ -14,6 +14,7 @@ import {
   getMatches,
   resetDemoData,
   getCurrentUser,
+  updateUserPreferences,
   getInternalProfile,
 } from '../lib/db';
 
@@ -25,29 +26,29 @@ describe('Database Layer & Privacy Guarantees', () => {
     db.prepare('DELETE FROM profiles').run();
     db.prepare('DELETE FROM user_account').run();
 
-    // Insert user
+    // Insert user: Arjun (Male, looking for everyone initially in test)
     db.prepare(`
-      INSERT INTO user_account (id, name, age, photo, bio, city)
-      VALUES ('me', 'Julian', 23, 'https://example.com/me.jpg', 'architecture & books', 'Brooklyn, NY')
+      INSERT INTO user_account (id, name, age, gender, looking_for, photo, bio, city)
+      VALUES ('me', 'Arjun', 23, 'male', 'everyone', 'https://example.com/me.jpg', 'architecture & books', 'Indiranagar, Bangalore')
     `).run();
 
     // Insert test profiles
-    // profile_1: liked user
+    // profile_1: female, liked user
     db.prepare(`
-      INSERT INTO profiles (id, name, age, photo, bio, city, interests, liked_user, created_at)
-      VALUES ('target_1', 'Elena', 22, 'https://example.com/elena.jpg', 'industrial design', 'Brooklyn', '["Design","Coffee"]', 1, datetime('now'))
+      INSERT INTO profiles (id, name, age, gender, height, style_color, photo, bio, city, interests, liked_user, created_at)
+      VALUES ('target_1', 'Ananya', 22, 'female', '5''5"', 'Warm Terracotta', 'https://example.com/ananya.jpg', 'nift grad', 'Delhi', '["Textiles","Chai"]', 1, datetime('now'))
     `).run();
 
-    // profile_2: did not like user
+    // profile_2: male, did not like user
     db.prepare(`
-      INSERT INTO profiles (id, name, age, photo, bio, city, interests, liked_user, created_at)
-      VALUES ('target_2', 'Marcus', 24, 'https://example.com/marcus.jpg', 'ceramics', 'Brooklyn', '["Ceramics","Running"]', 0, datetime('now'))
+      INSERT INTO profiles (id, name, age, gender, height, style_color, photo, bio, city, interests, liked_user, created_at)
+      VALUES ('target_2', 'Kabir', 24, 'male', '5''11"', 'Indigo & Linen', 'https://example.com/kabir.jpg', 'theatre lighting', 'Bangalore', '["Theatre","Music"]', 0, datetime('now'))
     `).run();
 
-    // profile_3: liked user
+    // profile_3: female, liked user
     db.prepare(`
-      INSERT INTO profiles (id, name, age, photo, bio, city, interests, liked_user, created_at)
-      VALUES ('target_3', 'Maya', 21, 'https://example.com/maya.jpg', 'printmaking', 'NY', '["Art","Printmaking"]', 1, datetime('now'))
+      INSERT INTO profiles (id, name, age, gender, height, style_color, photo, bio, city, interests, liked_user, created_at)
+      VALUES ('target_3', 'Riya', 21, 'female', '5''4"', 'Indigo & Linen', 'https://example.com/riya.jpg', 'fine arts', 'Mumbai', '["Art","Printmaking"]', 1, datetime('now'))
     `).run();
   });
 
@@ -70,8 +71,34 @@ describe('Database Layer & Privacy Guarantees', () => {
       expect(profile.id).toBeDefined();
       expect(profile.name).toBeDefined();
       expect(profile.age).toBeDefined();
+      expect(profile.gender).toBeDefined();
+      expect(profile.height).toBeDefined();
       expect(Array.isArray(profile.interests)).toBe(true);
     }
+  });
+
+  it('getFeed filters by gender based on user preferences or query options', () => {
+    // When looking for female only
+    const femaleFeed = getFeed('me', { gender: 'female' });
+    expect(femaleFeed.length).toBe(2);
+    expect(femaleFeed.every((p) => p.gender === 'female')).toBe(true);
+
+    // When looking for male only
+    const maleFeed = getFeed('me', { gender: 'male' });
+    expect(maleFeed.length).toBe(1);
+    expect(maleFeed[0].id).toBe('target_2');
+    expect(maleFeed[0].gender).toBe('male');
+  });
+
+  it('updateUserPreferences updates gender identity and discovery target', () => {
+    const updated = updateUserPreferences('me', { gender: 'female', lookingFor: 'male' });
+    expect(updated.gender).toBe('female');
+    expect(updated.lookingFor).toBe('male');
+
+    // Default feed now respects lookingFor = 'male'
+    const feed = getFeed('me');
+    expect(feed.length).toBe(1);
+    expect(feed[0].gender).toBe('male');
   });
 
   it('like on someone who liked the user produces a mutual match', () => {
@@ -81,7 +108,7 @@ describe('Database Layer & Privacy Guarantees', () => {
     expect(res.result?.match).toBe(true);
     expect(res.result?.profile).toBeDefined();
     expect(res.result?.profile?.id).toBe('target_1');
-    expect(res.result?.profile?.name).toBe('Elena');
+    expect(res.result?.profile?.name).toBe('Ananya');
     expect((res.result?.profile as any)?.likedUser).toBeUndefined();
 
     // Matches table now contains the match

@@ -1,11 +1,23 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getFeed } from '@/lib/db';
+import { FeedFilterOptions } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const profiles = getFeed('me');
+    const { searchParams } = new URL(request.url);
+
+    const filters: FeedFilterOptions = {};
+    const gender = searchParams.get('gender');
+    const city = searchParams.get('city');
+    const styleColor = searchParams.get('styleColor');
+
+    if (gender) filters.gender = gender as any;
+    if (city) filters.city = city;
+    if (styleColor) filters.styleColor = styleColor;
+
+    const profiles = getFeed('me', filters);
 
     // Strict privacy assurance: double check that likedUser is NEVER present
     for (const p of profiles) {

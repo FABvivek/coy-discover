@@ -52,8 +52,15 @@ Coy avoids the typical "gamified dating app" look (no loud neon pinks, no confet
   - *Sans:* `Inter` for interface controls, metadata tags, and bios.
 - **Card Design:**
   - Full-bleed portrait photography with an intentional bottom scrim gradient for maximum legibility.
+  - Displays name, age, city, height (e.g. 5'5"), aesthetic palette, bio, and interest tags.
   - Intentional radii (`28px`), refined elevation shadows, and touch-drag mechanics powered by `framer-motion`.
   - Subtle stamp overlays ("LIKE" and "PASS") fade in smoothly based on drag distance and release past a 100px / velocity threshold.
+- **Gender & Demographic Preferences:**
+  - Intuitive preferences modal ("Sliders" icon in header):
+    - **Identity & Interest:** Set gender (Man/Woman) and orientation (Women/Men/Everyone). Automatic smart defaults filter the feed accordingly.
+    - **Location Filter:** Filter by specific Indian cultural hubs (Bangalore, Mumbai, Delhi, Kolkata, Chennai, Pondicherry, Goa, Ahmedabad).
+    - **Aesthetic Palette:** Filter by style palettes (Warm Terracotta, Indigo & Linen, Forest & Olive, Ochre & Brass).
+    - **Height Display:** Subtle height attribution on every card.
 - **Match Screen:**
   - Restrained and elegant. Two portrait cards side-by-side with slight rotational overlap, headline *"It's a match."*, and two clear actions: *"Keep swiping"* and *"View matches"*. No confetti.
 - **Accessibility & Motion:**
